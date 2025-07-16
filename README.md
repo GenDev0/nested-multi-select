@@ -1,35 +1,34 @@
 # 📦 `@gendev0/shadcn-multi-select`
 
-> A reusable, type-safe ShadCN-style `MultiSelect` and `DataMultiSelect` components for React/Next.js with TailwindCSS.
+> A reusable, type-safe Shadcn-style `MultiSelect` and `DataMultiSelect` React components for Next.js with TailwindCSS.
 
 ---
 
 ## ✨ Features
 
-✅ ShadCN-style
-✅ Type-safe generics
-✅ Works with any nested key (`children`, `subItems`, etc.)
-✅ Fully responsive
-✅ TailwindCSS friendly (`cn` util included)
+* ✅ Shadcn-style UI consistency
+* ✅ Type-safe generics with flexible nested keys (`children`, `subItems`, etc.)
+* ✅ Fully responsive and mobile-first
+* ✅ TailwindCSS friendly (`cn` utility included for class merging)
 
 ---
 
 ## 🚀 Installation
 
+Install the package:
+
 ```bash
 npm install @gendev0/shadcn-multi-select
-```
-
-or
-
-```bash
+# or
 yarn add @gendev0/shadcn-multi-select
 ```
 
-You also need peer dependencies:
+Also install peer dependencies if you don’t have them yet:
 
 ```bash
 npm install react react-dom clsx lucide-react tailwind-merge
+# or
+yarn add react react-dom clsx lucide-react tailwind-merge
 ```
 
 ---
@@ -38,10 +37,10 @@ npm install react react-dom clsx lucide-react tailwind-merge
 
 ### `MultiSelect`
 
-Basic multi-select:
+Basic multi-select usage example:
 
 ```tsx
-import { MultiSelect } from "@gendev0/shadcn-multi-select"
+import { MultiSelect } from "@gendev0/shadcn-multi-select";
 
 <MultiSelect
   options={[
@@ -58,10 +57,10 @@ import { MultiSelect } from "@gendev0/shadcn-multi-select"
 
 ### `DataMultiSelect`
 
-Type-safe, generic, nested multi-select:
+Generic, type-safe nested multi-select:
 
 ```tsx
-import { DataMultiSelect } from "@gendev0/shadcn-multi-select"
+import { DataMultiSelect } from "@gendev0/shadcn-multi-select";
 
 const categories = [
   {
@@ -72,7 +71,7 @@ const categories = [
       { id: 2, name: "Child 2" },
     ],
   },
-]
+];
 
 <DataMultiSelect
   items={categories}
@@ -81,7 +80,7 @@ const categories = [
 />
 ```
 
-Or with different nested key:
+Or using a different nested key:
 
 ```tsx
 const groups = [
@@ -93,7 +92,7 @@ const groups = [
       { id: 2, name: "Sub 2" },
     ],
   },
-]
+];
 
 <DataMultiSelect
   items={groups}
@@ -106,22 +105,24 @@ const groups = [
 
 ## 🧹 Utilities
 
-This package exports `cn` (like ShadCN):
+Includes `cn` utility (like Shadcn) for convenient className merging:
 
 ```tsx
-import { cn } from "@gendev0/shadcn-multi-select"
+import { cn } from "@gendev0/shadcn-multi-select";
 
-const className = cn("base-class", condition && "conditional-class")
+const className = cn("base-class", condition && "conditional-class");
 ```
 
 ---
 
 ## 🧪 Running tests
 
-This project uses `jest` + `@testing-library/react`.
+This project uses Jest and React Testing Library for testing:
 
 ```bash
 npm test
+# or
+yarn test
 ```
 
 ---
