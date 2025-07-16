@@ -1,60 +1,56 @@
-# @gendev0/shadcn-multi-select
+# 📦 `@gendev0/shadcn-multi-select`
 
-🎯 A reusable **Shadcn-style MultiSelect and DataMultiSelect** components for Next.js, TailwindCSS 3/4, and React 18+.
-
-✅ Includes:
-- Generic `<MultiSelect />` for multi-choice lists
-- `<DataMultiSelect />` for parent–child (category–subcategory) selection
-- Built with TailwindCSS utility classes
-- Optional `cn()` utility included
-- Mobile-friendly, fully responsive
+> A reusable, type-safe ShadCN-style `MultiSelect` and `DataMultiSelect` components for React/Next.js with TailwindCSS.
 
 ---
 
-## 📦 Installation
+## ✨ Features
+
+✅ ShadCN-style
+✅ Type-safe generics
+✅ Works with any nested key (`children`, `subItems`, etc.)
+✅ Fully responsive
+✅ TailwindCSS friendly (`cn` util included)
+
+---
+
+## 🚀 Installation
 
 ```bash
 npm install @gendev0/shadcn-multi-select
-````
+```
 
-Or with Yarn:
+or
 
 ```bash
 yarn add @gendev0/shadcn-multi-select
 ```
 
+You also need peer dependencies:
+
+```bash
+npm install react react-dom clsx lucide-react tailwind-merge
+```
+
 ---
 
-## 🧩 Components
+## 📖 Usage
 
 ### `MultiSelect`
 
-A simple multiselect component.
-
-#### Props:
-
-| Prop          | Type                                  | Description               |
-| ------------- | ------------------------------------- | ------------------------- |
-| `options`     | `{ label: string; value: string; }[]` | Options to display        |
-| `value`       | `string[]`                            | Currently selected values |
-| `onChange`    | `(values: string[]) => void`          | Change handler            |
-| `placeholder` | `string`                              | Optional placeholder text |
-| `className`   | `string`                              | Optional custom classes   |
-
-#### Example:
+Basic multi-select:
 
 ```tsx
-import { MultiSelect } from '@gendev0/shadcn-multi-select'
-
-const [selected, setSelected] = useState<string[]>([])
+import { MultiSelect } from "@gendev0/shadcn-multi-select"
 
 <MultiSelect
   options={[
-    { label: 'Apple', value: 'apple' },
-    { label: 'Banana', value: 'banana' }
+    { label: "Option 1", value: "1" },
+    { label: "Option 2", value: "2" },
   ]}
-  value={selected}
-  onChange={setSelected}
+  value={["1"]}
+  onChange={(vals) => console.log(vals)}
+  placeholder="Select options"
 />
 ```
 
@@ -62,83 +58,74 @@ const [selected, setSelected] = useState<string[]>([])
 
 ### `DataMultiSelect`
 
-For selecting an item and its subitems.
-
-#### Props:
-
-| Prop             | Type                 | Description               |
-| ---------------- | -------------------- | ------------------------- |
-| `items`          | `ItemWithChildren[]` | Parent + subitems         |
-| `label`          | `string`             | Optional main label       |
-| `placeholder`    | `string`             | Optional main placeholder |
-| `subLabel`       | `string`             | Optional sub label        |
-| `subPlaceholder` | `string`             | Optional sub placeholder  |
-| `className`      | `string`             | Optional custom classes   |
-
-#### Example:
+Type-safe, generic, nested multi-select:
 
 ```tsx
-import { DataMultiSelect } from '@gendev0/shadcn-multi-select'
+import { DataMultiSelect } from "@gendev0/shadcn-multi-select"
+
+const categories = [
+  {
+    id: 1,
+    name: "Category 1",
+    children: [
+      { id: 1, name: "Child 1" },
+      { id: 2, name: "Child 2" },
+    ],
+  },
+]
 
 <DataMultiSelect
-  items={[
-    {
-      id: 1,
-      name: 'Category 1',
-      subItems: [
-        { id: 1, name: 'Sub 1' },
-        { id: 2, name: 'Sub 2' }
-      ]
-    }
-  ]}
+  items={categories}
+  childrenKey="children"
+  placeholder="Select category"
+/>
+```
+
+Or with different nested key:
+
+```tsx
+const groups = [
+  {
+    id: 1,
+    name: "Group 1",
+    subItems: [
+      { id: 1, name: "Sub 1" },
+      { id: 2, name: "Sub 2" },
+    ],
+  },
+]
+
+<DataMultiSelect
+  items={groups}
+  childrenKey="subItems"
+  placeholder="Select group"
 />
 ```
 
 ---
 
-## 🛠 Utility: `cn`
+## 🧹 Utilities
 
-This package uses the following utility internally, and you can also import it:
+This package exports `cn` (like ShadCN):
 
-```ts
-import { cn } from '@gendev0/shadcn-multi-select'
+```tsx
+import { cn } from "@gendev0/shadcn-multi-select"
 
-cn('p-2', isActive && 'bg-blue-500')
-```
-
-Or copy it to your own project:
-
-```ts
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+const className = cn("base-class", condition && "conditional-class")
 ```
 
 ---
 
-## 📋 Peer Dependencies
+## 🧪 Running tests
 
-Make sure you have these installed in your project:
-
-* `react` ^18+
-* `react-dom` ^18+
-* `tailwindcss` ^3+ or ^4+
-* `clsx`
-* `tailwind-merge`
-* `lucide-react`
-
-Install if missing:
+This project uses `jest` + `@testing-library/react`.
 
 ```bash
-npm install clsx tailwind-merge lucide-react
+npm test
 ```
 
 ---
 
-## 📜 License
+## 📄 License
 
 MIT © [Ahmed Chebbi](https://github.com/gendev0)
-

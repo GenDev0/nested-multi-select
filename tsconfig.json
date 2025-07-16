@@ -11,9 +11,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["DOM", "ESNext"]
+    "lib": ["DOM", "ESNext"],
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
