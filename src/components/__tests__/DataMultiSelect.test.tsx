@@ -48,6 +48,10 @@ describe("<DataMultiSelect />", () => {
       target: { value: "1" },
     });
 
+    // now open the MultiSelect dropdown
+    const multiSelectButton = screen.getByRole("button");
+    fireEvent.click(multiSelectButton);
+
     expect(screen.getByText("Child 1")).toBeInTheDocument();
     expect(screen.getByText("Child 2")).toBeInTheDocument();
   });
@@ -66,6 +70,9 @@ describe("<DataMultiSelect />", () => {
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "1" },
     });
+
+    const multiSelectButton = screen.getByRole("button");
+    fireEvent.click(multiSelectButton);
 
     expect(screen.getByText("Sub 1")).toBeInTheDocument();
     expect(screen.getByText("Sub 2")).toBeInTheDocument();
