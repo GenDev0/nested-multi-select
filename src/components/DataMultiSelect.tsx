@@ -4,17 +4,12 @@ import { useState } from "react";
 import { MultiSelect } from "./MultiSelect";
 import { cn } from "../utils/cn";
 
-export type ItemWithChildren = {
-  id: number;
-  name: string;
-  subItems: {
-    id: number;
-    name: string;
-  }[];
-};
-
-type DataMultiSelectProps = {
-  items: ItemWithChildren[];
+type DataMultiSelectProps<
+  T extends { id: number; name: string; [key: string]: any },
+  K extends keyof T
+> = {
+  items: T[];
+  childrenKey: K;
   label?: string;
   placeholder?: string;
   subLabel?: string;
@@ -22,22 +17,24 @@ type DataMultiSelectProps = {
   className?: string;
 };
 
-export function DataMultiSelect({
+export function DataMultiSelect<
+  T extends { id: number; name: string; [key: string]: any },
+  K extends keyof T
+>({
   items,
+  childrenKey,
   label,
   placeholder,
   subLabel,
   subPlaceholder,
   className,
-}: DataMultiSelectProps) {
-  const [selectedItem, setSelectedItem] = useState<ItemWithChildren | null>(
-    null
-  );
+}: DataMultiSelectProps<T, K>) {
+  const [selectedItem, setSelectedItem] = useState<T | null>(null);
   const [selectedSubItems, setSelectedSubItems] = useState<number[]>([]);
 
   const handleItemChange = (itemId: string) => {
-    const item = items.find((c) => c.id === parseInt(itemId, 10));
-    setSelectedItem(item || null);
+    const item = items.find((c) => c.id === parseInt(itemId, 10)) || null;
+    setSelectedItem(item);
     setSelectedSubItems([]); // reset on item change
   };
 
@@ -67,8 +64,11 @@ export function DataMultiSelect({
             <label className='text-sm font-medium'>
               {subLabel || `${selectedItem.name} Sub Items`}
             </label>
+
             <MultiSelect
-              options={selectedItem.subItems.map((sub) => ({
+              options={(
+                selectedItem[childrenKey] as { id: number; name: string }[]
+              ).map((sub) => ({
                 label: sub.name,
                 value: sub.id.toString(),
               }))}
