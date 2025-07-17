@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { MultiSelect } from "./MultiSelect";
-import { cn } from "../utils/cn";
+import { MultiSelect } from "./MultiSelect.js";
+import { cn } from "../utils/cn.js";
 
 type DataMultiSelectProps<
   T extends { id: number; name: string; [key: string]: any },
@@ -10,6 +9,10 @@ type DataMultiSelectProps<
 > = {
   items: T[];
   childrenKey: K;
+  selectedItem: T | null;
+  onSelectedItemChange: (item: T | null) => void;
+  selectedSubItems: number[];
+  onSelectedSubItemsChange: (ids: number[]) => void;
   label?: string;
   placeholder?: string;
   subLabel?: string;
@@ -23,23 +26,24 @@ export function DataMultiSelect<
 >({
   items,
   childrenKey,
+  selectedItem,
+  onSelectedItemChange,
+  selectedSubItems,
+  onSelectedSubItemsChange,
   label,
   placeholder,
   subLabel,
   subPlaceholder,
   className,
 }: DataMultiSelectProps<T, K>) {
-  const [selectedItem, setSelectedItem] = useState<T | null>(null);
-  const [selectedSubItems, setSelectedSubItems] = useState<number[]>([]);
-
   const handleItemChange = (itemId: string) => {
     const item = items.find((c) => c.id === parseInt(itemId, 10)) || null;
-    setSelectedItem(item);
-    setSelectedSubItems([]); // reset on item change
+    onSelectedItemChange(item);
+    onSelectedSubItemsChange([]); // reset subitems when main item changes
   };
 
   const handleSubItemsChange = (subItemIds: number[]) => {
-    setSelectedSubItems(subItemIds);
+    onSelectedSubItemsChange(subItemIds);
   };
 
   return (
@@ -49,7 +53,7 @@ export function DataMultiSelect<
         <select
           className='w-full border rounded px-3 py-2 text-sm'
           onChange={(e) => handleItemChange(e.target.value)}
-          value={selectedItem?.id || ""}
+          value={selectedItem?.id ?? ""}
         >
           <option value=''>{placeholder || "Select…"}</option>
           {items.map((item) => (
@@ -73,7 +77,7 @@ export function DataMultiSelect<
                 value: sub.id.toString(),
               }))}
               value={selectedSubItems.map(String)}
-              onChange={(values) =>
+              onChange={(values: string[]) =>
                 handleSubItemsChange(values.map((v) => parseInt(v, 10)))
               }
               placeholder={subPlaceholder}

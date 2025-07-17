@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MultiSelect } from "../MultiSelect";
+import { MultiSelect } from "../MultiSelect.js";
 
 describe("<MultiSelect />", () => {
   it("renders with placeholder", () => {

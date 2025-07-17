@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2019",
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "strict": true,
-    "jsx": "react-jsx",
+    "emitDeclarationOnly": false,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["DOM", "ESNext"],
-    "types": ["jest", "@testing-library/jest-dom"]
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true
   },
+  "types": ["jest", "@testing-library/jest-dom"],
   "include": [
     "src/**/*",
     "**/*.test.ts",
