@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { cn } from "../utils/cn.js";
 
 export type MultiSelectOption = {
   label: string;
@@ -13,6 +14,13 @@ type MultiSelectProps = {
   value: string[];
   onChange: (value: string[]) => void;
   placeholder?: string;
+  showSelectAll?: boolean;
+  layout?: "list" | "grid-cols-2" | "grid-cols-3";
+  classNames?: {
+    trigger?: string;
+    dropdown?: string;
+    option?: string;
+  };
 };
 
 export function MultiSelect({
@@ -20,14 +28,25 @@ export function MultiSelect({
   value,
   onChange,
   placeholder,
+  showSelectAll = false,
+  layout = "list",
+  classNames,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
 
-  const handleToggle = (val: string) => {
+  const toggleValue = (val: string) => {
     if (value.includes(val)) {
       onChange(value.filter((v) => v !== val));
     } else {
       onChange([...value, val]);
+    }
+  };
+
+  const toggleAll = () => {
+    if (value.length === options.length) {
+      onChange([]);
+    } else {
+      onChange(options.map((opt) => opt.value));
     }
   };
 
@@ -36,9 +55,11 @@ export function MultiSelect({
       <button
         type='button'
         onClick={() => setOpen(!open)}
-        className={`w-full border rounded px-3 py-2 text-left text-sm ${
-          value.length === 0 ? "text-gray-400" : ""
-        }`}
+        className={cn(
+          "w-full border rounded-md px-3 py-2 text-left text-sm bg-background text-foreground border-input shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+          value.length === 0 ? "text-muted-foreground" : "",
+          classNames?.trigger
+        )}
       >
         {value.length > 0
           ? options
@@ -49,23 +70,54 @@ export function MultiSelect({
       </button>
 
       {open && (
-        <div className='absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded border bg-white p-2 shadow'>
-          {options.map((opt) => (
+        <div
+          className={cn(
+            "absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-2 space-y-1",
+            classNames?.dropdown
+          )}
+        >
+          {showSelectAll && (
             <div
-              key={opt.value}
-              className='flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded'
-              onClick={() => handleToggle(opt.value)}
+              onClick={toggleAll}
+              className={cn(
+                "cursor-pointer text-sm px-2 py-1 rounded hover:bg-muted"
+              )}
             >
-              <span
-                className={`inline-flex h-4 w-4 items-center justify-center border rounded-sm ${
-                  value.includes(opt.value) ? "bg-blue-500 text-white" : ""
-                }`}
-              >
-                {value.includes(opt.value) && <Check size={12} />}
-              </span>
-              <span>{opt.label}</span>
+              {value.length === options.length ? "Deselect All" : "Select All"}
             </div>
-          ))}
+          )}
+
+          <div
+            className={cn(
+              "gap-2",
+              layout !== "list" && "grid",
+              layout === "grid-cols-2" && "grid-cols-2",
+              layout === "grid-cols-3" && "grid-cols-3"
+            )}
+          >
+            {options.map((opt) => (
+              <div
+                key={opt.value}
+                onClick={() => toggleValue(opt.value)}
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer px-2 py-1 rounded text-sm hover:bg-muted",
+                  classNames?.option
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-flex h-4 w-4 items-center justify-center border rounded-sm",
+                    value.includes(opt.value)
+                      ? "bg-primary text-primary-foreground"
+                      : ""
+                  )}
+                >
+                  {value.includes(opt.value) && <Check size={12} />}
+                </span>
+                <span>{opt.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
