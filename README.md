@@ -4,18 +4,38 @@
 
 ---
 
+## 🚀 Installation
+
+Install the package:
+
+```bash
+npm install @gendev0/nested-multi-select
+# or
+yarn add @gendev0/nested-multi-select
+```
+
+Also install peer dependencies if you don’t have them yet:
+
+```bash
+npm install react react-dom clsx lucide-react tailwind-merge
+# or
+yarn add react react-dom clsx lucide-react tailwind-merge
+```
+
+---
+
 ## ✨ Features
 
-✅ Shadcn-style, accessible UI
-✅ Type-safe generics with flexible nested keys (`children`, `subItems`, etc.)
-✅ Responsive & mobile-friendly layouts
-✅ Supports dark mode out of the box
-✅ **Nested multi-select with parent/child toggles**
-✅ “Select All” for parents & sub-items
-✅ Configurable grid or list display for sub-items
-✅ Fully customizable with `classNames` props
-✅ TailwindCSS-friendly (`cn` utility included)
-✅ Fully tested with Jest & RTL
+* ✅ Shadcn-style, accessible UI
+* ✅ Type-safe generics with flexible nested keys (`children`, `subItems`, etc.)
+* ✅ Responsive & mobile-friendly layouts
+* ✅ Supports dark mode out of the box
+* ✅ **Nested multi-select with parent/child toggles**
+* ✅ “Select All” for parents & sub-items
+* ✅ Configurable grid or list display for sub-items
+* ✅ Fully customizable with `classNames` props
+* ✅ TailwindCSS-friendly (`cn` utility included)
+* ✅ Fully tested with Jest & RTL
 
 ---
 
