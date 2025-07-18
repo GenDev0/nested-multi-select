@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Check, Minus } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "../utils/cn.js";
 
 export type NestedMultiSelectOption = {
@@ -31,6 +31,7 @@ type NestedMultiSelectProps = {
     child?: string;
     childCheckbox?: string;
     childLabel?: string;
+    expandButton?: string;
   };
 };
 
@@ -41,69 +42,120 @@ export function NestedMultiSelect({
   placeholder = "Select…",
   classNames = {},
 }: NestedMultiSelectProps) {
-  const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>(
+    {}
+  );
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const toggleItem = (itemId: number) => {
-    const found = value.find((v) => v.itemId === itemId);
-    if (found) {
-      onChange(value.filter((v) => v.itemId !== itemId));
-    } else {
-      onChange([...value, { itemId, subItemIds: [] }]);
-    }
-  };
-
-  const toggleSubItem = (itemId: number, subId: number) => {
-    const updated = value.map((v) => {
-      if (v.itemId !== itemId) return v;
-
-      const isSelected = v.subItemIds.includes(subId);
-      const subItemIds = isSelected
-        ? v.subItemIds.filter((id) => id !== subId)
-        : [...v.subItemIds, subId];
-
-      return { ...v, subItemIds };
-    });
-    onChange(updated);
-  };
-
-  const isItemSelected = (itemId: number) =>
-    value.some((v) => v.itemId === itemId);
-
-  const isSubItemSelected = (itemId: number, subId: number) =>
-    value.find((v) => v.itemId === itemId)?.subItemIds.includes(subId);
-
-  const isSomeSubSelected = (itemId: number, subIds: number[]) => {
-    const selected = value.find((v) => v.itemId === itemId);
-    if (!selected) return false;
-    return (
-      selected.subItemIds.length > 0 &&
-      selected.subItemIds.length < subIds.length
-    );
-  };
-
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
       ) {
-        setOpen(false);
+        setDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Toggle dropdown open/close
+  const toggleDropdown = () => setDropdownOpen((open) => !open);
+
+  // Toggle expand/collapse for a specific parent item
+  const toggleExpand = (itemId: number) => {
+    setExpandedItems((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
+  };
+
+  // Helper to find option by id
+  const findOptionById = (id: number) => options.find((o) => o.id === id);
+
+  // Check if parent is fully selected
+  const isAllChildrenSelected = (itemId: number) => {
+    const item = findOptionById(itemId);
+    if (!item?.children?.length) return false;
+    const selectedEntry = value.find((v) => v.itemId === itemId);
+    return selectedEntry?.subItemIds.length === item.children.length;
+  };
+
+  // Check if parent is partially selected (indeterminate)
+  const isIndeterminate = (itemId: number) => {
+    const item = findOptionById(itemId);
+    if (!item?.children?.length) return false;
+    const selectedEntry = value.find((v) => v.itemId === itemId);
+    if (!selectedEntry) return false;
+    const selectedCount = selectedEntry.subItemIds.length;
+    return selectedCount > 0 && selectedCount < item.children.length;
+  };
+
+  // Check if a child is selected
+  const isSubItemSelected = (itemId: number, subId: number) => {
+    const selectedEntry = value.find((v) => v.itemId === itemId);
+    return selectedEntry?.subItemIds.includes(subId) ?? false;
+  };
+
+  // Select or deselect parent + all its children
+  const toggleItemSelection = (itemId: number) => {
+    const item = findOptionById(itemId);
+    if (!item) return;
+
+    const allSubIds = item.children?.map((c) => c.id) ?? [];
+    const selectedEntry = value.find((v) => v.itemId === itemId);
+    const allSelected =
+      selectedEntry && selectedEntry.subItemIds.length === allSubIds.length;
+
+    if (allSelected) {
+      // Deselect parent and all children
+      onChange(value.filter((v) => v.itemId !== itemId));
+    } else {
+      // Select parent with all children
+      const newValue = value.filter((v) => v.itemId !== itemId);
+      newValue.push({ itemId, subItemIds: allSubIds });
+      onChange(newValue);
+      // Automatically expand the item when selected
+      setExpandedItems((prev) => ({ ...prev, [itemId]: true }));
+    }
+  };
+
+  // Toggle individual sub-item selection (fixed to add parent entry if missing)
+  const toggleSubItem = (itemId: number, subId: number) => {
+    const selectedEntry = value.find((v) => v.itemId === itemId);
+
+    if (!selectedEntry) {
+      // Parent not selected yet, create entry with one subItem selected
+      onChange([...value, { itemId, subItemIds: [subId] }]);
+      setExpandedItems((prev) => ({ ...prev, [itemId]: true })); // optionally expand on child selection
+      return;
+    }
+
+    const isSelected = selectedEntry.subItemIds.includes(subId);
+    const subItemIds = isSelected
+      ? selectedEntry.subItemIds.filter((id) => id !== subId)
+      : [...selectedEntry.subItemIds, subId];
+
+    if (subItemIds.length === 0) {
+      // No subitems selected, remove parent entry
+      onChange(value.filter((v) => v.itemId !== itemId));
+    } else {
+      // Update parent's subitems
+      onChange(
+        value.map((v) => (v.itemId === itemId ? { ...v, subItemIds } : v))
+      );
+    }
+  };
+
+  // Compose display text for selected parents
   const displayValue =
     value.length > 0
       ? value
           .map((v) => {
-            const item = options.find((o) => o.id === v.itemId);
+            const item = findOptionById(v.itemId);
             return item?.name || "";
           })
+          .filter(Boolean)
           .join(", ")
       : placeholder;
 
@@ -115,7 +167,7 @@ export function NestedMultiSelect({
     >
       <button
         type='button'
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={toggleDropdown}
         className={cn(
           "w-full border rounded-md px-3 py-2 text-left text-sm bg-background text-foreground border-input shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
           value.length === 0 ? "text-muted-foreground" : "",
@@ -125,77 +177,97 @@ export function NestedMultiSelect({
         {displayValue}
       </button>
 
-      {open && (
+      {dropdownOpen && (
         <div
           className={cn(
-            "absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-2 space-y-1",
+            "absolute z-10 mt-1 w-full max-h-72 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-2 space-y-1",
             classNames.dropdown
           )}
         >
           {options.map((item) => {
-            const itemSelected = isItemSelected(item.id);
-            const hasChildren = item.children && item.children.length > 0;
-            const subIds = item.children?.map((c) => c.id) ?? [];
-            const someSubSelected =
-              hasChildren && isSomeSubSelected(item.id, subIds);
+            const allSelected = isAllChildrenSelected(item.id);
+            const indeterminate = isIndeterminate(item.id);
+            const isExpanded = expandedItems[item.id] ?? false;
 
             return (
               <div key={item.id} className='space-y-1'>
-                <div
-                  onClick={() => toggleItem(item.id)}
-                  className={cn(
-                    "flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-muted text-sm",
-                    classNames.item
-                  )}
-                >
-                  <span
+                <div className='flex items-center justify-between px-2 py-1 rounded hover:bg-muted text-sm'>
+                  <label
                     className={cn(
-                      "inline-flex h-4 w-4 items-center justify-center border rounded-sm",
-                      itemSelected
-                        ? "bg-primary text-primary-foreground"
-                        : someSubSelected
-                        ? "bg-primary/30 text-primary-foreground"
-                        : "",
-                      classNames.itemCheckbox
+                      "flex items-center gap-2 cursor-pointer",
+                      classNames.item
                     )}
+                    onClick={(e) => e.preventDefault()}
                   >
-                    {itemSelected ? (
-                      <Check size={12} />
-                    ) : someSubSelected ? (
-                      <Minus size={12} />
-                    ) : null}
-                  </span>
-                  <span className={classNames.itemLabel}>{item.name}</span>
+                    <input
+                      type='checkbox'
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = indeterminate;
+                      }}
+                      onChange={() => toggleItemSelection(item.id)}
+                      className={cn(
+                        "h-4 w-4 rounded border",
+                        classNames.itemCheckbox
+                      )}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <span className={classNames.itemLabel}>{item.name}</span>
+                  </label>
+
+                  {item.children && item.children.length > 0 && (
+                    <button
+                      type='button'
+                      aria-label={isExpanded ? "Collapse" : "Expand"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleExpand(item.id);
+                      }}
+                      className={cn(
+                        "p-1 rounded hover:bg-muted focus:outline-none",
+                        classNames.expandButton
+                      )}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown size={16} />
+                      ) : (
+                        <ChevronRight size={16} />
+                      )}
+                    </button>
+                  )}
                 </div>
 
-                {hasChildren && itemSelected && (
-                  <div className={cn("pl-4", classNames.childrenContainer)}>
-                    {item.children!.map((child) => {
-                      const subSelected = isSubItemSelected(item.id, child.id);
+                {item.children && isExpanded && (
+                  <div
+                    className={cn(
+                      "pl-6 space-y-1",
+                      classNames.childrenContainer
+                    )}
+                  >
+                    {item.children.map((child) => {
+                      const checked = isSubItemSelected(item.id, child.id);
                       return (
-                        <div
+                        <label
                           key={child.id}
-                          onClick={() => toggleSubItem(item.id, child.id)}
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-muted text-sm",
+                            "flex items-center gap-2 cursor-pointer text-sm rounded hover:bg-muted px-2 py-1",
                             classNames.child
                           )}
                         >
-                          <span
+                          <input
+                            type='checkbox'
+                            checked={checked}
+                            onChange={() => toggleSubItem(item.id, child.id)}
                             className={cn(
-                              "inline-flex h-4 w-4 items-center justify-center border rounded-sm",
-                              subSelected
-                                ? "bg-primary text-primary-foreground"
-                                : "",
+                              "h-4 w-4 rounded border",
                               classNames.childCheckbox
                             )}
-                          >
-                            {subSelected && <Check size={12} />}
-                          </span>
+                            onClick={(e) => e.stopPropagation()}
+                          />
                           <span className={classNames.childLabel}>
                             {child.name}
                           </span>
-                        </div>
+                        </label>
                       );
                     })}
                   </div>
