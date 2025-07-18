@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { Check, Minus } from "lucide-react";
 import { cn } from "../utils/cn.js";
 
 export type MultiSelectOption = {
@@ -34,6 +34,17 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
+
+  const allSelected = value.length === options.length && options.length > 0;
+  const noneSelected = value.length === 0;
+  const someSelected = !allSelected && !noneSelected;
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someSelected;
+    }
+  }, [someSelected]);
 
   const toggleValue = (val: string) => {
     if (value.includes(val)) {
@@ -44,12 +55,11 @@ export function MultiSelect({
   };
 
   const toggleAll = () => {
-    if (value.length === options.length) {
+    if (allSelected) {
       onChange([]);
     } else {
       onChange(options.map((opt) => opt.value));
     }
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -69,10 +79,12 @@ export function MultiSelect({
   }, []);
 
   return (
-    <div ref={containerRef} className='relative'>
+    <div ref={containerRef} className='relative' data-testid='multi-select'>
       <button
         type='button'
         onClick={() => setOpen((prev) => !prev)}
+        aria-haspopup='listbox'
+        aria-expanded={open}
         className={cn(
           "w-full border rounded-md px-3 py-2 text-left text-sm bg-background text-foreground border-input shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
           value.length === 0 ? "text-muted-foreground" : "",
@@ -89,18 +101,43 @@ export function MultiSelect({
 
       {open && (
         <div
+          role='listbox'
+          tabIndex={-1}
           className={cn(
             "absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md p-2 space-y-1",
             classNames?.dropdown
           )}
         >
           {showSelectAll && (
-            <div
-              onClick={toggleAll}
-              className='cursor-pointer text-sm px-2 py-1 rounded hover:bg-muted'
+            <label
+              htmlFor='select-all-checkbox'
+              className='flex items-center gap-2 cursor-pointer px-2 py-1 rounded text-sm hover:bg-muted select-none'
             >
-              {value.length === options.length ? "Deselect All" : "Select All"}
-            </div>
+              <input
+                type='checkbox'
+                id='select-all-checkbox'
+                ref={selectAllRef}
+                checked={allSelected}
+                onChange={toggleAll}
+                className='sr-only'
+              />
+              <span
+                className={cn(
+                  "inline-flex h-4 w-4 items-center justify-center border rounded-sm",
+                  allSelected || someSelected
+                    ? "bg-primary text-primary-foreground"
+                    : ""
+                )}
+                aria-hidden='true'
+              >
+                {allSelected ? (
+                  <Check size={16} data-testid='check-icon' />
+                ) : someSelected ? (
+                  <Minus size={16} data-testid='minus-icon' />
+                ) : null}
+              </span>
+              <span>Select All</span>
+            </label>
           )}
 
           <div
@@ -111,28 +148,37 @@ export function MultiSelect({
               layout === "grid-cols-3" && "grid-cols-3"
             )}
           >
-            {options.map((opt) => (
-              <div
-                key={opt.value}
-                onClick={() => toggleValue(opt.value)}
-                className={cn(
-                  "flex items-center gap-2 cursor-pointer px-2 py-1 rounded text-sm hover:bg-muted",
-                  classNames?.option
-                )}
-              >
-                <span
+            {options.map((opt) => {
+              const isSelected = value.includes(opt.value);
+              return (
+                <label
+                  key={opt.value}
+                  htmlFor={`option-${opt.value}`}
                   className={cn(
-                    "inline-flex h-4 w-4 items-center justify-center border rounded-sm",
-                    value.includes(opt.value)
-                      ? "bg-primary text-primary-foreground"
-                      : ""
+                    "flex items-center gap-2 cursor-pointer px-2 py-1 rounded text-sm hover:bg-muted select-none",
+                    classNames?.option
                   )}
                 >
-                  {value.includes(opt.value) && <Check size={12} />}
-                </span>
-                <span>{opt.label}</span>
-              </div>
-            ))}
+                  <input
+                    id={`option-${opt.value}`}
+                    type='checkbox'
+                    checked={isSelected}
+                    onChange={() => toggleValue(opt.value)}
+                    className='sr-only'
+                  />
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center w-4 h-4 border rounded-sm",
+                      isSelected ? "bg-primary text-primary-foreground" : ""
+                    )}
+                    aria-hidden='true'
+                  >
+                    {isSelected && <Check size={16} />}
+                  </span>
+                  <span>{opt.label}</span>
+                </label>
+              );
+            })}
           </div>
         </div>
       )}
