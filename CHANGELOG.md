@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## \[1.1.0] - 2025-07-18
+## [1.1.1] - 2025-07-18
+
+### Fixed
+
+* 🐛 Allow selecting/deselecting individual sub-items even if parent was not selected previously.
+* ♻️ Improved selection logic to automatically create parent entry when selecting a child directly.
+* 🧹 General code cleanup and minor UX improvements for nested selection behavior.
+* ✅ Updated tests to cover sub-item selection without prior parent selection.
+
+---
+
+## [1.1.0] - 2025-07-18
 
 ### Added
 
@@ -37,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## \[1.0.1] - 2025-07-18
+## [1.0.1] - 2025-07-18
 
 ### Fixed
 
@@ -52,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## \[1.0.0] - 2025-07-17
+## [1.0.0] - 2025-07-17
 
 ### Added
 
