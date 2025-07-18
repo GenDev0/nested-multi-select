@@ -2,6 +2,7 @@
 
 import { MultiSelect } from "./MultiSelect.js";
 import { cn } from "../utils/cn.js";
+import { useMemo } from "react";
 
 type DataMultiSelectProps<
   T extends { id: number; name: string; [key: string]: any },
@@ -48,8 +49,18 @@ export function DataMultiSelect<
   const handleItemChange = (itemId: string) => {
     const item = items.find((c) => c.id === parseInt(itemId, 10)) || null;
     onSelectedItemChange(item);
-    onSelectedSubItemsChange([]); // reset subitems
+    onSelectedSubItemsChange([]);
   };
+
+  const subItemOptions = useMemo(() => {
+    if (!selectedItem) return [];
+    const children = selectedItem[childrenKey];
+    if (!Array.isArray(children)) return [];
+    return children.map((sub: { id: number; name: string }) => ({
+      label: sub.name,
+      value: sub.id.toString(),
+    }));
+  }, [selectedItem, childrenKey]);
 
   return (
     <div
@@ -86,12 +97,7 @@ export function DataMultiSelect<
             </label>
 
             <MultiSelect
-              options={(
-                selectedItem[childrenKey] as { id: number; name: string }[]
-              ).map((sub) => ({
-                label: sub.name,
-                value: sub.id.toString(),
-              }))}
+              options={subItemOptions}
               value={selectedSubItems.map(String)}
               onChange={(values) =>
                 onSelectedSubItemsChange(values.map((v) => parseInt(v, 10)))

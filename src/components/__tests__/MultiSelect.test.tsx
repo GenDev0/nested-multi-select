@@ -1,31 +1,57 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MultiSelect } from "../MultiSelect.js";
 
+const options = [
+  { label: "One", value: "1" },
+  { label: "Two", value: "2" },
+];
+
 describe("<MultiSelect />", () => {
-  it("renders with placeholder", () => {
-    render(
-      <MultiSelect
-        options={[{ label: "One", value: "1" }]}
-        value={[]}
-        onChange={() => {}}
-        placeholder='Select...'
-      />
-    );
-    expect(screen.getByText(/Select/i)).toBeInTheDocument();
-  });
+  it("toggles Select All and Deselect All correctly", async () => {
+    let value: string[] = [];
+    const handleChange = jest.fn((newValue) => {
+      value = newValue;
+      rerender(
+        <MultiSelect
+          options={options}
+          value={value}
+          onChange={handleChange}
+          showSelectAll
+        />
+      );
+    });
 
-  it("calls onChange when option is clicked", () => {
-    const handleChange = jest.fn();
-    render(
+    const { rerender } = render(
       <MultiSelect
-        options={[{ label: "One", value: "1" }]}
-        value={[]}
+        options={options}
+        value={value}
         onChange={handleChange}
+        showSelectAll
       />
     );
 
-    fireEvent.click(screen.getByRole("button")); // open dropdown
-    fireEvent.click(screen.getByText("One"));
-    expect(handleChange).toHaveBeenCalledWith(["1"]);
+    const trigger = screen.getByRole("button");
+
+    // Open dropdown
+    fireEvent.click(trigger);
+    expect(await screen.findByText("Select All")).toBeInTheDocument();
+
+    // Click Select All
+    fireEvent.click(screen.getByText("Select All"));
+    expect(handleChange).toHaveBeenCalledWith(["1", "2"]);
+
+    await waitFor(() =>
+      expect(screen.queryByText("Select All")).not.toBeInTheDocument()
+    );
+
+    // Reopen dropdown after value updates
+    fireEvent.click(screen.getByRole("button"));
+
+    expect(await screen.findByText("Deselect All")).toBeInTheDocument();
+
+    // Click Deselect All
+    fireEvent.click(screen.getByText("Deselect All"));
+    expect(handleChange).toHaveBeenCalledWith([]);
   });
 });

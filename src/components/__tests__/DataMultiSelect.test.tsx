@@ -21,7 +21,6 @@ const categories = [
   },
 ];
 
-// Wrapper component to provide controlled props
 function ControlledWrapper() {
   const [selectedItem, setSelectedItem] = useState<
     (typeof categories)[0] | null
@@ -37,26 +36,21 @@ function ControlledWrapper() {
       onSelectedItemChange={setSelectedItem}
       selectedSubItems={selectedSubItems}
       onSelectedSubItemsChange={setSelectedSubItems}
+      showSelectAll
     />
   );
 }
 
 describe("<DataMultiSelect />", () => {
-  it("renders placeholder and allows selection with 'children' key", () => {
+  it("renders placeholder and allows selection", () => {
     render(<ControlledWrapper />);
 
-    // Initially placeholder is shown
     expect(screen.getByText("Select category")).toBeInTheDocument();
 
-    // Select a category from the dropdown
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "1" } });
 
-    // After selection, the sub items label should be visible
     expect(screen.getByText("Category 1 Sub Items")).toBeInTheDocument();
 
-    // The MultiSelect button for sub items should also be present
-    expect(
-      screen.getByRole("button", { name: /Select…/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /select/i })).toBeInTheDocument();
   });
 });

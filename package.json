@@ -1,7 +1,7 @@
 {
-  "name": "@gendev0/shadcn-multi-select",
+  "name": "@gendev0/nested-multi-select",
   "version": "1.0.0",
-  "description": "A reusable Shadcn-style multi-select component for Next.js projects with TailwindCSS",
+  "description": "A reusable, type-safe, fully customizable **Nested MultiSelect** React component suite for Next.js & TailwindCSS, in Shadcn style.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [

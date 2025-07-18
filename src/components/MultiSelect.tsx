@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { cn } from "../utils/cn.js";
 
@@ -33,6 +33,7 @@ export function MultiSelect({
   classNames,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleValue = (val: string) => {
     if (value.includes(val)) {
@@ -48,13 +49,30 @@ export function MultiSelect({
     } else {
       onChange(options.map((opt) => opt.value));
     }
+    setOpen(false);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className='relative'>
+    <div ref={containerRef} className='relative'>
       <button
         type='button'
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((prev) => !prev)}
         className={cn(
           "w-full border rounded-md px-3 py-2 text-left text-sm bg-background text-foreground border-input shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
           value.length === 0 ? "text-muted-foreground" : "",
@@ -79,9 +97,7 @@ export function MultiSelect({
           {showSelectAll && (
             <div
               onClick={toggleAll}
-              className={cn(
-                "cursor-pointer text-sm px-2 py-1 rounded hover:bg-muted"
-              )}
+              className='cursor-pointer text-sm px-2 py-1 rounded hover:bg-muted'
             >
               {value.length === options.length ? "Deselect All" : "Select All"}
             </div>
