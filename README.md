@@ -10,30 +10,12 @@
 ✅ Type-safe generics with flexible nested keys (`children`, `subItems`, etc.)
 ✅ Responsive & mobile-friendly layouts
 ✅ Supports dark mode out of the box
-✅ “Select All” for sub-items
+✅ **Nested multi-select with parent/child toggles**
+✅ “Select All” for parents & sub-items
 ✅ Configurable grid or list display for sub-items
 ✅ Fully customizable with `classNames` props
 ✅ TailwindCSS-friendly (`cn` utility included)
-
----
-
-## 🚀 Installation
-
-Install the package:
-
-```bash
-npm install @gendev0/nested-multi-select
-# or
-yarn add @gendev0/nested-multi-select
-```
-
-Peer dependencies (if not already installed):
-
-```bash
-npm install react react-dom clsx lucide-react tailwind-merge
-# or
-yarn add react react-dom clsx lucide-react tailwind-merge
-```
+✅ Fully tested with Jest & RTL
 
 ---
 
@@ -47,10 +29,7 @@ Basic standalone multi-select:
 import { MultiSelect } from "@gendev0/nested-multi-select";
 
 <MultiSelect
-  options={[
-    { label: "Option 1", value: "1" },
-    { label: "Option 2", value: "2" },
-  ]}
+  options={[{ label: "Option 1", value: "1" }]}
   value={["1"]}
   onChange={(vals) => console.log(vals)}
   placeholder="Select options"
@@ -61,44 +40,51 @@ import { MultiSelect } from "@gendev0/nested-multi-select";
 
 ### 📝 `DataMultiSelect`
 
-Nested, type-safe multi-select with parent & sub-items:
+Type-safe two-step multi-select (parent + sub-items):
 
 ```tsx
 import { DataMultiSelect } from "@gendev0/nested-multi-select";
-
-const categories = [
-  {
-    id: 1,
-    name: "Category 1",
-    children: [
-      { id: 1, name: "Child 1" },
-      { id: 2, name: "Child 2" },
-    ],
-  },
-];
 
 <DataMultiSelect
   items={categories}
   childrenKey="children"
   selectedItem={null}
-  onSelectedItemChange={(item) => console.log(item)}
+  onSelectedItemChange={(item) => {}}
   selectedSubItems={[]}
-  onSelectedSubItemsChange={(ids) => console.log(ids)}
-  placeholder="Select category"
+  onSelectedSubItemsChange={(ids) => {}}
 />
 ```
 
-Or using a different nested key (`subItems`):
+---
+
+### 📝 `NestedMultiSelect`
+
+✅ Single-dropdown **nested parent-child multi-select**:
+Each parent row can select/deselect all its children, and children can be toggled individually.
+The resulting value has the shape:
+
+```ts
+{ itemId: number, subItemIds: number[] }[]
+```
 
 ```tsx
-<DataMultiSelect
-  items={groups}
-  childrenKey="subItems"
-  selectedItem={null}
-  onSelectedItemChange={(item) => console.log(item)}
-  selectedSubItems={[]}
-  onSelectedSubItemsChange={(ids) => console.log(ids)}
-  placeholder="Select group"
+import { NestedMultiSelect } from "@gendev0/nested-multi-select";
+
+<NestedMultiSelect
+  items={[
+    {
+      id: 1,
+      name: "Parent 1",
+      children: [
+        { id: 1, name: "Child 1" },
+        { id: 2, name: "Child 2" }
+      ]
+    }
+  ]}
+  value={[]}
+  onChange={(val) => console.log(val)}
+  childrenKey="children"
+  placeholder="Select options"
 />
 ```
 
@@ -106,7 +92,17 @@ Or using a different nested key (`subItems`):
 
 ## 🎨 Customization
 
-Both components accept `classNames` props to override styles.
+All components accept `classNames` props for fine-grained styling.
+
+For `NestedMultiSelect`:
+
+| Prop                  | Description                    |
+| --------------------- | ------------------------------ |
+| `classNames.trigger`  | Dropdown button trigger styles |
+| `classNames.dropdown` | Dropdown panel styles          |
+| `classNames.item`     | Parent row styles              |
+| `classNames.child`    | Child row styles               |
+
 For `DataMultiSelect`:
 
 | Prop                          | Description              |
@@ -116,45 +112,13 @@ For `DataMultiSelect`:
 | `classNames.subItemContainer` | Sub-item section         |
 | `classNames.subItemOption`    | Each sub-item option     |
 
-📐 Layout options for sub-items:
+📐 Layout options:
 
 * `"list"` (default)
 * `"grid-cols-2"`
 * `"grid-cols-3"`
 
-✅ Enable `showSelectAll` to add a “Select All” option for sub-items.
-
-Example:
-
-```tsx
-<DataMultiSelect
-  items={categories}
-  childrenKey="children"
-  selectedItem={null}
-  onSelectedItemChange={() => {}}
-  selectedSubItems={[]}
-  onSelectedSubItemsChange={() => {}}
-  showSelectAll
-  subItemsLayout="grid-cols-2"
-  classNames={{
-    container: "bg-muted p-4 rounded-md",
-    mainSelect: "bg-background border-primary",
-    subItemOption: "hover:bg-accent"
-  }}
-/>
-```
-
----
-
-## 🧹 Utilities
-
-The `cn` utility is included for merging Tailwind classes:
-
-```tsx
-import { cn } from "@gendev0/nested-multi-select";
-
-const className = cn("base", condition && "active");
-```
+✅ Enable `showSelectAll` to add “Select All” for sub-items or children.
 
 ---
 
