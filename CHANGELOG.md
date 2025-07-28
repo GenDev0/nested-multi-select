@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2025-07-28
+
+### Added
+* ✨ **Portal-based dropdown rendering** for `<MultiSelect>` and `<NestedMultiSelect>`  
+  - Ensures the dropdown layers above modals and fixed containers  
+  - Fixes clipping/z-index issues in complex layouts
+
+* ✨ **Improved accessibility**  
+  - Added proper `aria-haspopup`, `aria-expanded`, and label associations  
+  - Screen-reader friendly and fully keyboard accessible
+
+* ✨ **Visual indicators for selection states**  
+  - ✅ `check-icon` when all items are selected  
+  - ➖ `minus-icon` when in indeterminate state
+
+### Changed
+* ♻️ Refactored `<MultiSelect>` to use `PortalDropdown` + `usePortalDropdown` hook for cleaner logic
+* 🎨 Slight UI polish for the select-all row and option checkboxes
+
+### Fixed
+* 🧪 Updated tests to cover portal rendering & new icons  
+* 🐛 Resolved minor inconsistencies in checkbox state updates
+
+---
+
 ## [1.1.1] - 2025-07-18
 
 ### Fixed
