@@ -26,7 +26,8 @@ yarn add react react-dom clsx lucide-react tailwind-merge
 
 ## ✨ Features
 
-* ✅ Shadcn-style, accessible UI
+* ✅ Shadcn-style, accessible UI (ARIA-friendly, keyboard navigation)
+* ✅ Dropdown rendered via **React Portal** for correct layering (no clipping in modals/containers)
 * ✅ Type-safe generics with flexible nested keys (`children`, `subItems`, etc.)
 * ✅ Responsive & mobile-friendly layouts
 * ✅ Supports dark mode out of the box
@@ -35,7 +36,7 @@ yarn add react react-dom clsx lucide-react tailwind-merge
 * ✅ Configurable grid or list display for sub-items
 * ✅ Fully customizable with `classNames` props
 * ✅ TailwindCSS-friendly (`cn` utility included)
-* ✅ Fully tested with Jest & RTL
+* ✅ Fully tested with Jest + React Testing Library
 
 ---
 
