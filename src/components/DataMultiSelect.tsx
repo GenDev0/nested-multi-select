@@ -1,5 +1,4 @@
 "use client";
-
 import { MultiSelect } from "./MultiSelect.js";
 import { cn } from "../utils/cn.js";
 import { useMemo } from "react";
@@ -49,7 +48,7 @@ export function DataMultiSelect<
   const handleItemChange = (itemId: string) => {
     const item = items.find((c) => c.id === parseInt(itemId, 10)) || null;
     onSelectedItemChange(item);
-    onSelectedSubItemsChange([]);
+    onSelectedSubItemsChange([]); // reset when changing parent
   };
 
   const subItemOptions = useMemo(() => {
@@ -69,6 +68,7 @@ export function DataMultiSelect<
         classNames?.container
       )}
     >
+      {/* Parent select */}
       <div className='space-y-2'>
         {label && (
           <label className='text-sm font-medium text-foreground'>{label}</label>
@@ -90,6 +90,7 @@ export function DataMultiSelect<
           ))}
         </select>
 
+        {/* Child MultiSelect */}
         {selectedItem && (
           <div className={cn("mt-4 space-y-2", classNames?.subItemContainer)}>
             <label className='text-sm font-medium text-foreground'>
