@@ -4,6 +4,16 @@
 
 ---
 
+## 📚 Live Storybook
+
+Explore the interactive documentation and examples on [Storybook](https://gendev0.github.io/nested-multi-select/?path=/docs/components-datamultiselect--docs).
+
+[![Storybook](https://cdn.jsdelivr.net/gh/storybookjs/brand@master/badge/badge-storybook.svg)](https://gendev0.github.io/nested-multi-select/?path=/docs/components-datamultiselect--docs)
+
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-blue?logo=github&style=flat-square)](https://github.com/GenDev0/nested-multi-select)
+
+---
+
 ## 🚀 Installation
 
 Install the package:
